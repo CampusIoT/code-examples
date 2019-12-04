@@ -1,0 +1,4 @@
+Accéléromètre : LSM303D
+Microcontrôleur : stm32l151cbu6
+IDE : STM32CubeIDE 
+Configuration capteur : Maintenir qq secondes hors tension pendant le reset pour avoir un comportement normal

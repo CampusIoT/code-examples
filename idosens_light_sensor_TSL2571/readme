@@ -1,0 +1,46 @@
+Allumer le capteur :
+
+Mettre le GPIOB0 à l'état haut AVANT l'initialisation de l'i2c :
+
+ //Turn on sensors
+ HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, SET);
+ MX_I2C1_Init();
+
+PUIS écrire 0b11 dans enable register 0x00 :
+//Ecrire dans enable register pour turn on capteur light 0b11
+buf[0] = COMMAND_ENABLE;
+HAL_I2C_Master_Transmit(&hi2c1, capteurlight_ADDR, buf, 1,HAL_MAX_DELAY);
+data1[0]=0b11;
+HAL_I2C_Master_Transmit(&hi2c1, capteurlight_ADDR, data1, 1,HAL_MAX_DELAY);
+data2[0]=data1[0]; 
+
+
+Lire les registres avec l'i2c :
+
+Envoyer un premier octet contenant 0b101adresse5bit pour lire ou écrire dans le registre d'adresse adresse5bit. 0b10100001 pour le registre 0x01 par ex.
+Puis lire ou écrire une valeur
+
+Ex :
+
+//J'envoie COMMNAND au capteur light : lire un octet de light
+ buf[0] = COMMAND_LIGHTREG14;
+ HAL_I2C_Master_Transmit(&hi2c1, capteurlight_ADDR, buf, 1,HAL_MAX_DELAY);
+// Read 1 bytes from the temperature register
+HAL_I2C_Master_Receive(&hi2c1, capteurlight_ADDR, data1, 1,HAL_MAX_DELAY);
+
+
+Code de conversion en lux :
+p14 de la doc
+
+CPL = (ATIME_ms × AGAINx) / (GA × 53)
+Lux1 = (C0DATA - 2 × C1DATA) / CPL
+Lux2 = (0.6 × C0DATA - C1DATA) / CPL
+Lux = MAX(Lux1, Lux2, 0)
+
+
+Valeur de ATIME_ms : dans registre 0x01, valeur 686 ms dans mon cas, temps d'intégration
+Valeur de AGAINx : dans registre 0x0F, 1 dans mon cas
+GA : 1
+
+Pour le code voir : https://www.youtube.com/watch?v=tvK4Oi8dnj8 6:39
+Valeurs lux : https://en.wikipedia.org/wiki/Lux

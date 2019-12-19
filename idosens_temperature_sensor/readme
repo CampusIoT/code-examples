@@ -1,0 +1,23 @@
+Alimenter les capteurs avant l'init de l'I2C :
+ //Turn on sensors
+ HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, SET);
+MX_I2C1_Init();
+
+Conversion degré C vers degrés F : deg F = deg C *1.8 +32
+
+
+Le proc ne gère pas les floats : séparer parite entière et décimale et les converitr en int :
+
+//Conversion F
+data[0]=buf[0];
+float f=buf[0]*1.8+32;
+int f_ent = (int)f;
+int f_dec = 100*f-f_ent*100;
+
+Lecture registres :
+Par défaut, on lit la valeur de température
+[I2C transmit @capteur read] puis [I2C receive @capteur buffer] lit la température 
+
+Configuration registres :
+Format trame :
+0b add add add add A2 A1 A0 [R/not(W)] p9 de la doc, A012 = 0
